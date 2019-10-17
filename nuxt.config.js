@@ -1,8 +1,12 @@
-export default {
-  mode: 'spa',
+const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   router: {
     base: '/voicePressureMeasure/'
-  },
+  }
+} : {}
+
+export default {
+  mode: 'spa',
+  ...routerBase,
   /*
    ** Headers of the page
    */
