@@ -1,5 +1,8 @@
 # voicePressureMeasure
 
+[![MIT License](https://img.shields.io/github/license/cyrus07424/voicePressureMeasure)](https://github.com/cyrus07424/voicePressureMeasure/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/cyrus07424/voicePressureMeasure.svg)](https://travis-ci.org/cyrus07424/voicePressureMeasure)
+
 > Voice pressure measurement tool
 
 ## Build Setup
