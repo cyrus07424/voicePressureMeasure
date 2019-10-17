@@ -1,5 +1,8 @@
 export default {
   mode: 'spa',
+  router: {
+    base: '/voicePressureMeasure/'
+  },
   /*
    ** Headers of the page
    */
