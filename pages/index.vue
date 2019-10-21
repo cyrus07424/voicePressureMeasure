@@ -1,17 +1,15 @@
 <template>
-  <div class="container">
+  <div class="container text-center">
     <logo />
     <h1>音量測定ツール</h1>
     <h3 id="status"></h3>
-    <h3 id="maxInput">0</h3>
+    <h3 id="maxInput"><span class="volume">0</span>db</h3>
     <b-button id="srartButton" variant="primary" onclick="startRecording()" disabled>解析開始</b-button>
     <b-button id="stopButton" variant="danger" onclick="endRecording()" disabled>解析停止</b-button>
     <hr />
-    <div class="row">
-      <div class="col-sm-6">
-        <canvas id="canvas" width="500" height="500"></canvas>
-      </div>
-    </div>
+    <div id="completeLog"></div>
+    <hr />
+    <canvas id="canvas" width="500" height="500"></canvas>
   </div>
 </template>
 
@@ -28,4 +26,10 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.volume {
+  font-size: 50px;
+  font-weight: bold;
+  color: #f00;
+}
+</style>

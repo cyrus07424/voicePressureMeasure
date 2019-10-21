@@ -4,13 +4,16 @@ var localScriptProcessor = null;
 var audioContext = new AudioContext();
 var bufferSize = 1024;
 var recordingFlg = false;
+var recordingMillis = 10000;
+
+// タイマー
+var timer = null;
+
+// 完了回数
+var completeCount = 0;
 
 // 音量の最大値
 var maxInput = 0;
-
-// 画面表示用
-var maxInputElement = $("#maxInput");
-var statusElement = $("#status");
 
 // キャンバス
 var canvas = document.getElementById("canvas");
@@ -41,13 +44,12 @@ navigator.mediaDevices.getUserMedia({audio: true})
     mediastreamsource.connect(audioAnalyser);
     
     // 初期化完了処理
-    $("#srartButton").prop("disabled", false);
-    $("#stopButton").prop("disabled", false);
-    statusElement.html("初期化完了");
+    setStartButtonDisabled(false);
+    refreshStatus("初期化完了");
 })
 .catch(function(error) {
     console.log(error);
-    statusElement.html("初期化失敗");
+    refreshStatus("初期化失敗");
 });
 
 // 解析開始
@@ -55,18 +57,37 @@ var startRecording = function() {
     console.log("startRecording");
     recordingFlg = true;
     maxInput = 0;
-    maxInputElement.html(maxInput);
-    statusElement.html("解析中...");
+    refreshVolume();
+    refreshStatus("解析中...");
+    setStartButtonDisabled(true);
+    setStopButtonDisabled(false);
 
-    // 10秒後に停止
-    setTimeout(endRecording, 10000);
+    // 一定時間後に完了
+    timer = setTimeout(completeRecording, recordingMillis);
+};
+
+// 解析完了処理
+var completeRecording = function() {
+    console.log("completeRecording");
+
+    // 完了ログを追加
+    completeCount++;
+    addCompleteLog();
+    
+    // 終了
+    endRecording();
 };
 
 // 解析終了
 var endRecording = function() {
     console.log("endRecording");
     recordingFlg = false;
-    statusElement.html("停止中");
+    if (timer != null) {
+        clearTimeout(timer);
+    }
+    refreshStatus("停止中");
+    setStartButtonDisabled(false);
+    setStopButtonDisabled(true);
 };
 
 // 録音バッファ作成（録音中自動で繰り返し呼び出される）
@@ -82,7 +103,7 @@ var onAudioProcess = function(e) {
         var absInput = Math.abs(input[i]);
         if (maxInput < absInput) {
             maxInput = absInput;
-            maxInputElement.html(maxInput);
+            refreshVolume();
         }
     }
 
@@ -132,4 +153,52 @@ var analyseVoice = function() {
         // Draw text (Y)
         canvasContext.fillText(text, 0, gy);
     }
-}
+};
+
+// ステータスを再描画
+var refreshStatus = function(status) {
+    $("#status").html(status);
+};
+
+// 音量を再描画
+var refreshVolume = function() {
+    // デシベル値を計算
+    $("#maxInput span").html(calcDb(maxInput));
+};
+
+// 完了ログを追加
+var addCompleteLog = function(status) {
+    var completeLog = completeCount + "回目 : " + calcDb(maxInput) + " [db]";
+    $("#completeLog").prepend(
+        $("<div>").append(completeLog)
+    );
+};
+
+// デシベル値を計算
+var calcDb = function(input) {
+    // デシベル値を計算
+    var db = 20 * Math.log(maxInput * 1000000) / Math.log(10);
+    
+    // 小数点以下第3位で四捨五入
+    return Math.round(db * 100) / 100;
+};
+
+// 解析開始ボタンの活性状態を設定
+var setStartButtonDisabled = function(disabled) {
+    var button = $("#srartButton");
+    if (disabled) {
+        button.prop("disabled", true).addClass("disabled");
+    } else {
+        button.prop("disabled", false).removeClass("disabled");
+    }
+};
+
+// 解析終了ボタンの活性状態を設定
+var setStopButtonDisabled = function(disabled) {
+    var button = $("#stopButton");
+    if (disabled) {
+        button.prop("disabled", true).addClass("disabled");
+    } else {
+        button.prop("disabled", false).removeClass("disabled");
+    }
+};
