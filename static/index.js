@@ -6,12 +6,15 @@ var localMediaStream = null;
 var localScriptProcessor = null;
 var audioContext = new AudioContext();
 var bufferSize = 1024;
-var audioData = []; // 録音データ
 var recordingFlg = false;
 
 // 音量の最大値
 var maxInput = 0;
+
+// 画面表示用
 var maxInputElement = $("#maxInput");
+var statusElement = $("#status");
+
 
 // キャンバス
 var canvas = document.getElementById("canvas");
@@ -20,25 +23,68 @@ var canvasContext = canvas.getContext("2d");
 // 音声解析
 var audioAnalyser = null;
 
+// マイクのストリームを取得
+navigator.getUserMedia({audio: true}, function(stream) {
+    console.log("navigator.getUserMedia");
+
+    // 録音関連
+    localMediaStream = stream;
+    var scriptProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+    localScriptProcessor = scriptProcessor;
+    var mediastreamsource = audioContext.createMediaStreamSource(stream);
+    mediastreamsource.connect(scriptProcessor);
+    scriptProcessor.onaudioprocess = onAudioProcess;
+    scriptProcessor.connect(audioContext.destination);
+
+    // 音声解析関連
+    audioAnalyser = audioContext.createAnalyser();
+    audioAnalyser.fftSize = 2048;
+    frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
+    timeDomainData = new Uint8Array(audioAnalyser.frequencyBinCount);
+    mediastreamsource.connect(audioAnalyser);
+    
+    statusElement.html("初期化完了");
+},
+function(e) {
+    console.log(e);
+    statusElement.html("初期化失敗");
+});
+
+// 解析開始
+var startRecording = function() {
+    console.log("startRecording");
+    recordingFlg = true;
+    maxInput = 0;
+    maxInputElement.html(maxInput);
+    statusElement.html("解析中...");
+
+    // 10秒後に停止
+    setTimeout(endRecording, 10000);
+};
+
+// 解析終了
+var endRecording = function() {
+    console.log("endRecording");
+    recordingFlg = false;
+    statusElement.html("停止中");
+};
+
 // 録音バッファ作成（録音中自動で繰り返し呼び出される）
 var onAudioProcess = function(e) {
-    if (!recordingFlg){
+    if (!recordingFlg) {
         return;  
     } 
 
-    // 音声のバッファを作成
+    // 音声バッファを取得
     var input = e.inputBuffer.getChannelData(0);
-    var bufferData = new Float32Array(bufferSize);
     for (var i = 0; i < bufferSize; i++) {
-        bufferData[i] = input[i];
+        // 振幅の絶対値を取得して最大値を更新
         var absInput = Math.abs(input[i]);
-        if(maxInput < absInput){
+        if (maxInput < absInput) {
             maxInput = absInput;
-            console.log(maxInput);
             maxInputElement.html(maxInput);
         }
     }
-    audioData.push(bufferData);
 
     // 波形を解析
     analyseVoice();
@@ -87,39 +133,3 @@ var analyseVoice = function() {
         canvasContext.fillText(text, 0, gy);
     }
 }
-
-// 解析開始
-var startRecording = function() {
-    recordingFlg = true;
-    maxInput = 0;
-    maxInputElement.html(maxInput);
-    navigator.getUserMedia({audio: true}, function(stream) {
-        // 録音関連
-        localMediaStream = stream;
-        var scriptProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
-        localScriptProcessor = scriptProcessor;
-        var mediastreamsource = audioContext.createMediaStreamSource(stream);
-        mediastreamsource.connect(scriptProcessor);
-        scriptProcessor.onaudioprocess = onAudioProcess;
-        scriptProcessor.connect(audioContext.destination);
-
-        // 音声解析関連
-        audioAnalyser = audioContext.createAnalyser();
-        audioAnalyser.fftSize = 2048;
-        frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
-        timeDomainData = new Uint8Array(audioAnalyser.frequencyBinCount);
-        mediastreamsource.connect(audioAnalyser);
-        
-        // 10秒後に停止
-        setTimeout(endRecording, 10000);
-    },
-    function(e) {
-        console.log(e);
-    });
-};
-
-// 解析終了
-var endRecording = function() {
-    console.log("endRecording");
-    recordingFlg = false;
-};
