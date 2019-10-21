@@ -14,6 +14,7 @@ var completeCount = 0;
 
 // 音量の最大値
 var maxInput = 0;
+var maxSpectrums = Number.NEGATIVE_INFINITY;
 
 // キャンバス
 var canvas = document.getElementById("canvas");
@@ -57,6 +58,7 @@ var startRecording = function() {
     console.log("startRecording");
     recordingFlg = true;
     maxInput = 0;
+    maxSpectrums = Number.NEGATIVE_INFINITY;
     refreshVolume();
     refreshStatus("解析中...");
     setStartButtonDisabled(true);
@@ -115,13 +117,15 @@ var onAudioProcess = function(e) {
 var analyseVoice = function() {
     var fsDivN = audioContext.sampleRate / audioAnalyser.fftSize;
     var spectrums = new Uint8Array(audioAnalyser.frequencyBinCount);
+    var floatSpectrums = new Float32Array(audioAnalyser.frequencyBinCount);
     audioAnalyser.getByteFrequencyData(spectrums);
+    audioAnalyser.getFloatFrequencyData(floatSpectrums);
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
     canvasContext.beginPath();
 
     for (var i = 0, len = spectrums.length; i < len; i++) {
-        //canvasにおさまるように線を描画
+        // canvasにおさまるように線を描画
         var x = (i / len) * canvas.width;
         var y = (1 - (spectrums[i] / 255)) * canvas.height;
         if (i === 0) {
@@ -129,15 +133,25 @@ var analyseVoice = function() {
         } else {
             canvasContext.lineTo(x, y);
         }
-        var f = Math.floor(i * fsDivN);  // index -> frequency;
+        // 添字から周波数に変換
+        var f = Math.floor(i * fsDivN);
 
-        // 500 Hz単位にy軸の線とラベル出力
-        if ((f % 500) === 0) {
+        // 1000 Hz単位にy軸の線とラベル出力
+        if ((f % 1000) === 0) {
             var text = (f < 1000) ? (f + " Hz") : ((f / 1000) + " kHz");
             // Draw grid (X)
             canvasContext.fillRect(x, 0, 1, canvas.height);
             // Draw text (X)
             canvasContext.fillText(text, x, canvas.height);
+        }
+        
+        // 周波数が250Hz～2000Hzの間の場合
+        if (250 <= f && f <= 2000) {
+            // 最大値を更新
+            if (maxSpectrums < floatSpectrums[i]) {
+                maxSpectrums = floatSpectrums[i];
+                refreshVolume();
+            }
         }
     }
 
@@ -162,8 +176,14 @@ var refreshStatus = function(status) {
 
 // 音量を再描画
 var refreshVolume = function() {
+    console.log({
+        maxInput: maxInput,
+        maxSpectrums: maxSpectrums
+    });
+
     // デシベル値を計算
     $("#maxInput span").html(calcDb(maxInput));
+    $("#maxSpectrums span").html(calcSpectrumsDb(maxSpectrums));
 };
 
 // 完了ログを追加
@@ -174,14 +194,20 @@ var addCompleteLog = function(status) {
     );
 };
 
-// デシベル値を計算
+// デシベル値を計算(振幅)
+var calcSpectrumsDb = function(input) {
+    // 小数点以下第3位で四捨五入
+    return Math.round(input * 100) / 100;
+};
+
+// デシベル値を計算(成分)
 var calcDb = function(input) {
-    if (maxInput <= 0) {
+    if (input <= 0) {
         // 結果がInfinityにならないようにする
         return 0;
     } else {
         // デシベル値を計算
-        var db = 20 * Math.log(maxInput * 1000000) / Math.log(10);
+        var db = 20 * Math.log(input * 1000000) / Math.log(10);
         
         // 小数点以下第3位で四捨五入
         return Math.round(db * 100) / 100;
