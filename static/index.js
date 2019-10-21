@@ -1,6 +1,3 @@
-// クロスブラウザ定義
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.mediaDevices.getUserMedia;
-
 // 変数定義
 var localMediaStream = null;
 var localScriptProcessor = null;
@@ -24,7 +21,8 @@ var canvasContext = canvas.getContext("2d");
 var audioAnalyser = null;
 
 // マイクのストリームを取得
-navigator.getUserMedia({audio: true}, function(stream) {
+navigator.mediaDevices.getUserMedia({audio: true})
+.then(function(stream) {
     console.log("navigator.getUserMedia");
 
     // 録音関連
@@ -44,9 +42,9 @@ navigator.getUserMedia({audio: true}, function(stream) {
     mediastreamsource.connect(audioAnalyser);
     
     statusElement.html("初期化完了");
-},
-function(e) {
-    console.log(e);
+})
+.catch(function(error) {
+    console.log(error);
     statusElement.html("初期化失敗");
 });
 
