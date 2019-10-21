@@ -176,11 +176,16 @@ var addCompleteLog = function(status) {
 
 // デシベル値を計算
 var calcDb = function(input) {
-    // デシベル値を計算
-    var db = 20 * Math.log(maxInput * 1000000) / Math.log(10);
-    
-    // 小数点以下第3位で四捨五入
-    return Math.round(db * 100) / 100;
+    if (maxInput <= 0) {
+        // 結果がInfinityにならないようにする
+        return 0;
+    } else {
+        // デシベル値を計算
+        var db = 20 * Math.log(maxInput * 1000000) / Math.log(10);
+        
+        // 小数点以下第3位で四捨五入
+        return Math.round(db * 100) / 100;
+    }
 };
 
 // 解析開始ボタンの活性状態を設定
