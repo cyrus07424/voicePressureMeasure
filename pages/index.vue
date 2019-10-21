@@ -9,7 +9,7 @@
     <hr />
     <div id="completeLog"></div>
     <hr />
-    <canvas id="canvas" width="500" height="500"></canvas>
+    <canvas id="canvas"></canvas>
   </div>
 </template>
 
