@@ -12,7 +12,6 @@ var maxInput = 0;
 var maxInputElement = $("#maxInput");
 var statusElement = $("#status");
 
-
 // キャンバス
 var canvas = document.getElementById("canvas");
 var canvasContext = canvas.getContext("2d");
@@ -41,6 +40,9 @@ navigator.mediaDevices.getUserMedia({audio: true})
     timeDomainData = new Uint8Array(audioAnalyser.frequencyBinCount);
     mediastreamsource.connect(audioAnalyser);
     
+    // 初期化完了処理
+    $("#srartButton").prop("disabled", false);
+    $("#stopButton").prop("disabled", false);
     statusElement.html("初期化完了");
 })
 .catch(function(error) {
