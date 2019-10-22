@@ -209,6 +209,8 @@ var refreshProgressbar = function(value) {
     progressBar.css("width", value + "%");
     if (0 < remainingSeconds) {
         progressBar.html(remainingSeconds + "秒");
+    }　else {
+        progressBar.html("");
     }
 };
 
