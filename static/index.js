@@ -1,10 +1,14 @@
-// 変数定義
+// 定数
+var bufferSize = 1024;
+var recordingMillis = 10000;
+var countDownInterval = 100;
+
+// 変数
 var localMediaStream = null;
 var localScriptProcessor = null;
 var audioContext = new AudioContext();
-var bufferSize = 1024;
 var recordingFlg = false;
-var recordingMillis = 10000;
+var remainingMillis = 0;
 
 // タイマー
 var timer = null;
@@ -43,7 +47,7 @@ navigator.mediaDevices.getUserMedia({audio: true})
     frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
     timeDomainData = new Uint8Array(audioAnalyser.frequencyBinCount);
     mediastreamsource.connect(audioAnalyser);
-    
+
     // 初期化完了処理
     setStartButtonDisabled(false);
     refreshStatus("初期化完了");
@@ -64,8 +68,11 @@ var startRecording = function() {
     setStartButtonDisabled(true);
     setStopButtonDisabled(false);
 
-    // 一定時間後に完了
-    timer = setTimeout(completeRecording, recordingMillis);
+    // カウントダウン開始
+    remainingMillis = recordingMillis;
+
+    // 100ミリ秒ごとにカウントダウン処理を実行
+    timer = setInterval(countDown, countDownInterval);
 };
 
 // 解析完了処理
@@ -75,7 +82,7 @@ var completeRecording = function() {
     // 完了ログを追加
     completeCount++;
     addCompleteLog();
-    
+
     // 終了
     endRecording();
 };
@@ -90,13 +97,31 @@ var endRecording = function() {
     refreshStatus("停止中");
     setStartButtonDisabled(false);
     setStopButtonDisabled(true);
+
+    // プログレスバーを再描画
+    refreshProgressbar(0);
+};
+
+// カウントダウン処理
+var countDown = function() {
+    // 残り時間を現象
+    remainingMillis -= countDownInterval;
+
+    // プログレスバーを再描画
+    refreshProgressbar((remainingMillis * 100) / recordingMillis);
+
+    // カウントダウン終了時
+    if(remainingMillis <= 0){
+        // 解析完了処理
+        completeRecording();
+    }
 };
 
 // 録音バッファ作成（録音中自動で繰り返し呼び出される）
 var onAudioProcess = function(e) {
     if (!recordingFlg) {
-        return;  
-    } 
+        return;
+    }
 
     // 音声バッファを取得
     var input = e.inputBuffer.getChannelData(0);
@@ -144,7 +169,7 @@ var analyseVoice = function() {
             // Draw text (X)
             canvasContext.fillText(text, x, canvas.height);
         }
-        
+
         // 周波数が250Hz～2000Hzの間の場合
         if (250 <= f && f <= 2000) {
             // 最大値を更新
@@ -174,6 +199,19 @@ var refreshStatus = function(status) {
     $("#status").html(status);
 };
 
+// プログレスバーを再描画
+// value = 0~100
+var refreshProgressbar = function(value) {
+    // 残り秒数を計算
+    var remainingSeconds = Math.ceil((recordingMillis / 1000) * (value / 100));
+
+    var progressBar = $("#progressBar");
+    progressBar.css("width", value + "%");
+    if (0 < remainingSeconds) {
+        progressBar.html(remainingSeconds + "秒");
+    }
+};
+
 // 音量を再描画
 var refreshVolume = function() {
     console.log({
@@ -187,10 +225,17 @@ var refreshVolume = function() {
 };
 
 // 完了ログを追加
-var addCompleteLog = function(status) {
-    var completeLog = completeCount + "回目 : " + calcDb(maxInput) + " [db]";
+var addCompleteLog = function() {
+    var index = completeCount + "回目 : ";
+    var completeInputLog = calcDb(maxInput) + " [db]";
+    var completeSpectrumsLog = calcSpectrumsDb(maxSpectrums) + " [db]";
     $("#completeLog").prepend(
-        $("<div>").append(completeLog)
+        $("<div>").append(
+            index,
+            completeInputLog,
+            ", ",
+            completeSpectrumsLog
+        )
     );
 };
 
@@ -208,7 +253,7 @@ var calcDb = function(input) {
     } else {
         // デシベル値を計算
         var db = 20 * Math.log(input * 1000000) / Math.log(10);
-        
+
         // 小数点以下第3位で四捨五入
         return Math.round(db * 100) / 100;
     }
