@@ -53,7 +53,7 @@ var maxSpectrums = Number.NEGATIVE_INFINITY;
 var canvas = document.getElementById("canvas");
 var canvasContext = canvas.getContext("2d");
 
-// 音声測定
+// 音声解析
 var audioAnalyser = null;
 
 // マイクのストリームを取得
@@ -70,7 +70,7 @@ navigator.mediaDevices.getUserMedia({audio: true})
     scriptProcessor.onaudioprocess = onAudioProcess;
     scriptProcessor.connect(audioContext.destination);
 
-    // 音声測定関連
+    // 音声解析関連
     audioAnalyser = audioContext.createAnalyser();
     audioAnalyser.fftSize = 2048;
     frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
@@ -163,11 +163,11 @@ var onAudioProcess = function(e) {
         }
     }
 
-    // 波形を測定
+    // 波形を解析
     analyseVoice();
 };
 
-// 測定用処理
+// 解析用処理
 var analyseVoice = function() {
     var fsDivN = audioContext.sampleRate / audioAnalyser.fftSize;
     var spectrums = new Uint8Array(audioAnalyser.frequencyBinCount);
@@ -251,14 +251,14 @@ var refreshVolume = function() {
     });
 
     // デシベル値を計算
-    $("#maxInput span").html(calcDb(maxInput));
+    $("#maxInput span").html(calcInputDb(maxInput));
     $("#maxSpectrums span").html(calcSpectrumsDb(maxSpectrums));
 };
 
 // 完了ログを追加
 var addCompleteLog = function() {
     var index = completeCount + "回目 : ";
-    var completeInputLog = calcDb(maxInput) + " [db]";
+    var completeInputLog = calcInputDb(maxInput) + " [db]";
     var completeSpectrumsLog = calcSpectrumsDb(maxSpectrums) + " [db]";
     $("#completeLog").prepend(
         $("<div>").append(
@@ -271,13 +271,7 @@ var addCompleteLog = function() {
 };
 
 // デシベル値を計算(振幅)
-var calcSpectrumsDb = function(input) {
-    // 小数点以下第3位で四捨五入
-    return Math.round(input * 100) / 100;
-};
-
-// デシベル値を計算(成分)
-var calcDb = function(input) {
+var calcInputDb = function(input) {
     if (input <= 0) {
         // 結果がInfinityにならないようにする
         return 0;
@@ -288,6 +282,12 @@ var calcDb = function(input) {
         // 小数点以下第3位で四捨五入
         return Math.round(db * 100) / 100;
     }
+};
+
+// デシベル値を計算(成分)
+var calcSpectrumsDb = function(input) {
+    // 小数点以下第3位で四捨五入
+    return Math.round(input * 100) / 100;
 };
 
 // 測定開始ボタンの活性状態を設定
