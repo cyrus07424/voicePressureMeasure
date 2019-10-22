@@ -104,7 +104,7 @@ var endRecording = function() {
 
 // カウントダウン処理
 var countDown = function() {
-    // 残り時間を現象
+    // 残り時間を減少
     remainingMillis -= countDownInterval;
 
     // プログレスバーを再描画

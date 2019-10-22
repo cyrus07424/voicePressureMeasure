@@ -2,7 +2,7 @@
   <div class="container text-center">
     <logo />
     <h1>音量測定ツール</h1>
-    <h3 id="status"></h3>
+    <h3 id="status">初期化していません</h3>
     <div class="progress">
       <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
     </div>
