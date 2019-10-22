@@ -24,7 +24,7 @@ var maxSpectrums = Number.NEGATIVE_INFINITY;
 var canvas = document.getElementById("canvas");
 var canvasContext = canvas.getContext("2d");
 
-// 音声解析
+// 音声測定
 var audioAnalyser = null;
 
 // マイクのストリームを取得
@@ -41,7 +41,7 @@ navigator.mediaDevices.getUserMedia({audio: true})
     scriptProcessor.onaudioprocess = onAudioProcess;
     scriptProcessor.connect(audioContext.destination);
 
-    // 音声解析関連
+    // 音声測定関連
     audioAnalyser = audioContext.createAnalyser();
     audioAnalyser.fftSize = 2048;
     frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
@@ -57,14 +57,14 @@ navigator.mediaDevices.getUserMedia({audio: true})
     refreshStatus("初期化失敗");
 });
 
-// 解析開始
+// 測定開始
 var startRecording = function() {
     console.log("startRecording");
     recordingFlg = true;
     maxInput = 0;
     maxSpectrums = Number.NEGATIVE_INFINITY;
     refreshVolume();
-    refreshStatus("解析中...");
+    refreshStatus("測定中...");
     setStartButtonDisabled(true);
     setStopButtonDisabled(false);
 
@@ -75,7 +75,7 @@ var startRecording = function() {
     timer = setInterval(countDown, countDownInterval);
 };
 
-// 解析完了処理
+// 測定完了処理
 var completeRecording = function() {
     console.log("completeRecording");
 
@@ -87,7 +87,7 @@ var completeRecording = function() {
     endRecording();
 };
 
-// 解析終了
+// 測定終了
 var endRecording = function() {
     console.log("endRecording");
     recordingFlg = false;
@@ -112,7 +112,7 @@ var countDown = function() {
 
     // カウントダウン終了時
     if(remainingMillis <= 0){
-        // 解析完了処理
+        // 測定完了処理
         completeRecording();
     }
 };
@@ -134,11 +134,11 @@ var onAudioProcess = function(e) {
         }
     }
 
-    // 波形を解析
+    // 波形を測定
     analyseVoice();
 };
 
-// 解析用処理
+// 測定用処理
 var analyseVoice = function() {
     var fsDivN = audioContext.sampleRate / audioAnalyser.fftSize;
     var spectrums = new Uint8Array(audioAnalyser.frequencyBinCount);
@@ -261,7 +261,7 @@ var calcDb = function(input) {
     }
 };
 
-// 解析開始ボタンの活性状態を設定
+// 測定開始ボタンの活性状態を設定
 var setStartButtonDisabled = function(disabled) {
     var button = $("#srartButton");
     if (disabled) {
@@ -271,7 +271,7 @@ var setStartButtonDisabled = function(disabled) {
     }
 };
 
-// 解析終了ボタンの活性状態を設定
+// 測定終了ボタンの活性状態を設定
 var setStopButtonDisabled = function(disabled) {
     var button = $("#stopButton");
     if (disabled) {
