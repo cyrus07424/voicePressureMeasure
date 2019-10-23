@@ -28,6 +28,7 @@
       id="stopButton"
       variant="danger"
       onclick="endRecording()"
+      style="display:none;"
       disabled
     >
       測定停止
