@@ -14,8 +14,8 @@
         aria-valuemax="100"
       ></div>
     </div>
-    <h3 id="maxInput">input:<span class="volume">0</span>db</h3>
-    <h3 id="maxSpectrums">spectrums:<span class="volume">0</span>db</h3>
+    <h3 id="maxInput">input:<span class="volume">0</span>dB</h3>
+    <h3 id="maxSpectrums">spectrums:<span class="volume">0</span>dBFS/Hz</h3>
     <b-button
       id="srartButton"
       variant="primary"

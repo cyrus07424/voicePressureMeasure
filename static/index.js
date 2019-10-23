@@ -258,8 +258,8 @@ var refreshVolume = function() {
 // 完了ログを追加
 var addCompleteLog = function() {
     var index = completeCount + "回目 : ";
-    var completeInputLog = calcInputDb(maxInput) + " [db]";
-    var completeSpectrumsLog = calcSpectrumsDb(maxSpectrums) + " [db]";
+    var completeInputLog = calcInputDb(maxInput) + " [dB]";
+    var completeSpectrumsLog = calcSpectrumsDb(maxSpectrums) + " [dBFS/Hz]";
     $("#completeLog").prepend(
         $("<div>").append(
             index,
