@@ -238,7 +238,7 @@ var refreshProgressbar = function(value) {
     progressBar.css("width", value + "%");
     if (0 < remainingSeconds) {
         progressBar.html(remainingSeconds + "秒");
-    }　else {
+    } else {
         progressBar.html("");
     }
 };
@@ -292,7 +292,7 @@ var calcSpectrumsDb = function(input) {
 
 // 測定開始ボタンの活性状態を設定
 var setStartButtonDisabled = function(disabled) {
-    var button = $("#srartButton");
+    var button = $("#startButton");
     if (disabled) {
         button.prop("disabled", true).addClass("disabled");
     } else {
