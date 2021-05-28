@@ -5,7 +5,7 @@ const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
 } : {}
 
 export default {
-  mode: 'spa',
+  ssr: false,
   ...routerBase,
   /*
    ** Headers of the page
@@ -13,8 +13,8 @@ export default {
   head: {
     title: process.env.npm_package_name || '',
     meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no' },
+      {charset: 'utf-8'},
+      {name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no'},
       {
         hid: 'description',
         name: 'description',
@@ -22,17 +22,21 @@ export default {
       }
     ],
     script: [
-      { src: 'https://code.jquery.com/jquery-3.4.1.min.js', integrity: 'sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=', crossorigin: 'anonymous' }
+      {
+        src: 'https://code.jquery.com/jquery-3.4.1.min.js',
+        integrity: 'sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=',
+        crossorigin: 'anonymous'
+      }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto&display=swap' }
+      {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'},
+      {rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto&display=swap'}
     ]
   },
   /*
    ** Customize the progress-bar color
    */
-  loading: { color: '#fff' },
+  loading: {color: '#fff'},
   /*
    ** Global CSS
    */
@@ -69,6 +73,7 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {}
+    extend(config, ctx) {
+    }
   }
 }
