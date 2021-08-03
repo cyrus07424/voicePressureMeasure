@@ -28,7 +28,7 @@
     "prettier": "^2.3.0",
     "css-loader": "^6.0.0",
     "postcss": "^8.1.10",
-    "postcss-import": "^13.0.0",
+    "postcss-import": "^14.0.2",
     "postcss-loader": "^6.1.0",
     "postcss-url": "^10.1.1"
   }
