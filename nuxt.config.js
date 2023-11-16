@@ -1,4 +1,4 @@
-const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
+const routerBase = process.env.CI === 'true' ? {
   router: {
     base: '/voicePressureMeasure/'
   }
